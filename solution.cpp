@@ -84,3 +84,114 @@ public:
         }
     }
 };
+class checkingAccount : public account
+{
+public:
+    checkingAccount(float b = 0.0, float r = 0) : account(b, r) {}
+
+    void withdrawlDetails(float amount) override
+    {
+        if (balance - amount < 0)
+        {
+            charge += 15; 
+            
+            balance -= 15;
+            return;
+        }
+
+        account::withdrawlDetails(amount);
+    }
+
+    void monthlyProc() override
+    {
+        charge += 5 + (0.10 * ndrawls);
+        account::monthlyProc();
+    }
+};
+
+int main()
+{
+    float savingsBalance, checkingBalance, interestRate;
+
+    cout << "Enter initial savings balance: Rs:";
+    cin >> savingsBalance;
+    cout << "Enter initial checking balance: Rs:";
+    cin >> checkingBalance;
+    cout << "Enter annual interest rate (decimal): ";
+    cin >> interestRate;
+
+    savingAccount savings;
+    savings.depositsDetails(savingsBalance);
+
+    checkingAccount checking(checkingBalance, interestRate);
+
+    int choice;
+    float amount;
+    float totalSavingsDeposits = 0, totalSavingsWithdrawals = 0;
+    float totalCheckingDeposits = 0, totalCheckingWithdrawals = 0;
+
+    do
+    {
+        cout << "\n1. Deposit to Savings\n2. Withdraw from Savings\n";
+        cout << "3. Deposit to Checking\n4. Withdraw from Checking\n";
+        cout << "5. End Month\n6. Exit\nChoice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            cout << "Amount: Rs:";
+            cin >> amount;
+            savings.depositsDetails(amount);
+            totalSavingsDeposits += amount;
+            break;
+        case 2:
+            cout << "Amount: Rs:";
+            cin >> amount;
+            savings.withdrawlDetails(amount);
+            totalSavingsWithdrawals += amount;
+            break;
+        case 3:
+            cout << "Amount: Rs:";
+            cin >> amount;
+            checking.depositsDetails(amount);
+            totalCheckingDeposits += amount;
+            break;
+        case 4:
+            cout << "Amount: Rs:";
+            cin >> amount;
+            checking.withdrawlDetails(amount);
+            totalCheckingWithdrawals += amount;
+            break;
+        case 5:
+            float savingsServiceCharge = savings.getCharge();
+            float checkingServiceCharge = checking.getCharge();
+
+            savings.monthlyProc();
+            checking.monthlyProc();
+
+            cout << "\n--- Monthly Statement ---\n";
+            cout << "\nSavings Account:\n";
+            cout << "Beginning balance: Rs:" << savingsBalance << endl;
+            cout << "Total deposits: Rs:" << totalSavingsDeposits << endl;
+            cout << "Total withdrawals: Rs:" << totalSavingsWithdrawals << endl;
+            cout << "Service charges: Rs:" << savingsServiceCharge << endl;
+            cout << "Ending balance: Rs:" << savings.getBalance() << endl;
+
+            cout << "\nChecking Account:\n";
+            cout << "Beginning balance: Rs:" << checkingBalance << endl;
+            cout << "Total deposits: Rs:" << totalCheckingDeposits << endl;
+            cout << "Total withdrawals: Rs:" << totalCheckingWithdrawals << endl;
+            cout << "Service charges: Rs:" << checkingServiceCharge << endl;
+            cout << "Ending balance: Rs:" << checking.getBalance() << endl;
+
+            totalSavingsDeposits = totalSavingsWithdrawals = 0;
+            totalCheckingDeposits = totalCheckingWithdrawals = 0;
+            savingsBalance = savings.getBalance();
+            checkingBalance = checking.getBalance();
+            break;
+        }
+    } while (choice != 6);
+
+    return 0;
+}
